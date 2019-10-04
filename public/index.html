@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Multiplicación de Números</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {
+        font-family: sans-serif;
+        background-image: url('http://www.fittravelandservices.com/wp-content/uploads/2018/02/704662_digital-art-simple-backgrounds-wallpapers-hd-desktop-and-mobile_1920x1080_h.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+
+      h1{
+        text-align: center;
+        color: white;
+      }
+
+      #vista{
+        border-radius: 15px;
+        margin-left: 35%;
+        padding-left: 68px;
+        padding-top: 8px;
+        background-color: cadetblue;
+        width: 25%;
+        height: 250px;
+      }
+
+      footer{
+        margin-left: 40%;
+        color:white;
+
+      }
+
+      input{
+        border-radius: 15px;
+        background-color: transparent;
+        height:25px;
+        width:180px;
+        color: rgb(253, 247, 247);
+        padding-left: 14px;
+        margin-left: 40px;
+      }
+
+      input::placeholder{
+        color: white;
+      }
+
+      #btn{
+        border-radius: 15px;
+        background-color: rgb(44, 160, 144);
+        color:rgb(234, 248, 232);
+        width: 125px;
+        height: 43px;
+        margin-left: 18px;
+      }
+
+
+      #btn:hover{
+        border-radius: 15px;
+        border-color: darkkhaki;
+        background-color: rgb(50, 175, 159);
+        color:rgb(255, 255, 255);
+        width: 125px;
+        height: 43px;
+        margin-left: 18px;
+      }
+
+      #saludarHttp{
+        border-radius: 15px;
+        border-color: rgb(201, 216, 162);
+        background-color: rgb(28, 161, 170);
+        color:white;
+        width: 125px;
+        height: 43px;
+        margin-left: 14px;
+      }
+
+      #saludarHttp:hover{
+        border-radius: 15px;
+        border-color: rgb(201, 216, 162);
+        background-color: rgb(45, 192, 202);
+        color:white;
+        width: 125px;
+        height: 43px;
+        margin-left: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Multiplicación de Números</h1>
+    <form id="vista">
+      <p><output id="respuesta"></output></p>
+      <p><input type="number" id="numero1" required placeholder="Ingresa el primer número"></p>
+      <p><input type="number" id="numero2" required placeholder="Ingresa el segundo número"></p>
+      <p>
+        <button type="submit" id="btn">Mostrar (Hilos)</button>
+        <button type="button" id="saludarHttp">Mostrar (Http)</button>
+      </p>
+     
+    </form>
+
+    <footer><b>Cuevas Martinez Yaheli IC51-M</b></footer>
+    <script type="module">
+     
+      const hilo = new Worker("wwSaludo.js");
+
+     
+      vista.addEventListener("submit", mostrarHilo);
+
+      
+      saludarHttp.addEventListener("click", saludaHttp);
+
+     
+      hilo.addEventListener("message", evt => muestraRespuesta(evt.data));
+
+     
+      function muestraRespuesta(texto) {
+        respuesta.value = texto;
+      }
+
+     
+      function mostrarHilo(evt) {
+        evt.preventDefault();
+      
+        const modelo = leeModelo();
+        
+        hilo.postMessage(modelo);
+      }
+
+    
+      function leeModelo() {
+      
+        return {
+        
+          numero1: numero1.value,
+          numero2: numero2.value
+        };
+      }
+
+    
+      function saludaHttp() {
+        const modelo = leeModelo();
+        
+        fetch("saludo?numero1=" + encodeURIComponent(modelo.numero1)
+          + "&numero2=" + encodeURIComponent(modelo.numero2))
+          /* then recibe una función que se ejecuta cuando la comunicación con
+           * el servidor haya terminado exitosamente. */
+          .then(
+            /** Función que se ejecuta cuando la comunicación con el servidor
+             * haya terminado exitosamente.
+             * @param {Response} respuestaHttp el resultado de la conexión */
+            respuestaHttp => {
+              /* La property ok de la respuesta vale true si la conexión terminó
+               * con éxito. */
+              if (respuestaHttp.ok) {
+                /* En esta parte del if, la conexión terminó con éxito. Hay que
+                 * mostrar el texto del servidor. respuestaHttp.text() devuelve
+                 * una promise con el texto recibido; dicha promise se devuelve
+                 * como resultado de esta función. */
+                return respuestaHttp.text();
+              } else {
+                /* En esta parte del if, la conexión terminó con errores. Se
+                 * Lanza una excepción que será atrapada por la función del
+                 * .catch en la línea 111. respuestaHttp.statusText devuelve
+                 * untexto describiendo el error, que normalmente está en
+                 * inglés. */
+                throw new Error(respuestaHttp.statusText)
+              }
+            })
+          /* La función del .then anterior, devuelve una promise; cuando esta
+           * termina de ejecutarse, el valor que devuelve se le pasa a la
+           * función de este then. */
+          .then(texto => muestraRespuesta(texto))
+          /* Cuando se genere una excepción en cualquier punto de la cadena
+           * de operaciones, se invoca la función que recibe catch. */
+          .catch(e => muestraRespuesta(e.message));
+      }
+
+    </script>
+    
+  </body>
+</html>
